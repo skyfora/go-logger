@@ -116,6 +116,18 @@ func Fatal(message string, fields ...zap.Field) {
 	logger.zapLog.Fatal(message, fields...)
 }
 
+func Warn(message string, fields ...zap.Field) {
+	logger.zapLog.Warn(message, fields...)
+}
+
+func DPanic(message string, fields ...zap.Field) {
+	logger.zapLog.DPanic(message, fields...)
+}
+
+func Panic(message string, fields ...zap.Field) {
+	logger.zapLog.Panic(message, fields...)
+}
+
 func With(fields ...zap.Field) *zap.Logger {
 	return logger.zapLog.With(fields...)
 }
