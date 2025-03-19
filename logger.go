@@ -34,9 +34,6 @@ type Logger struct {
 	// SeparateLevel will write logs to separate files based on the log level.
 	SeparateLevel bool
 
-	// CallerSkip is the number of callers to skip.
-	CallerSkip int
-
 	zapLog *zap.Logger
 }
 
@@ -85,7 +82,7 @@ func Init(l Logger) {
 		zapLog: zap.New(
 			core,
 			zap.AddCaller(),
-			zap.AddCallerSkip(l.CallerSkip),
+			zap.AddCallerSkip(1),
 			zap.AddStacktrace(zap.ErrorLevel),
 		),
 	}
