@@ -50,7 +50,7 @@ func Init(l Logger) {
 	cores := []zapcore.Core{}
 
 	if l.WithStdout {
-		cores = append(cores, NewConsoleEncoder(encoderConfig))
+		cores = append(cores, NewConsoleEncoder(encoderConfig, level))
 	}
 
 	if l.FilePath != "" {
