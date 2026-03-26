@@ -9,7 +9,9 @@ import (
 )
 
 func NewConsoleEncoder(cfg zapcore.EncoderConfig, level zap.AtomicLevel) zapcore.Core {
-	consoleEncoder := zapcore.NewConsoleEncoder(cfg)
+	consoleCfg := cfg
+	consoleCfg.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	consoleEncoder := zapcore.NewConsoleEncoder(consoleCfg)
 	stdout := zapcore.AddSync(os.Stdout)
 	return zapcore.NewCore(consoleEncoder, stdout, level)
 }

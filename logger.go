@@ -25,10 +25,10 @@ type Logger struct {
 	MaxSize int
 
 	// MaxAge is the maximum number of days to retain old log files based on the
-	// timestamp encoded in their filename.
+	// timestamp encoded in their filename. Default is not to remove old log files.
 	MaxAge int
 
-	// MaxBackups is the maximum number of old log files to retain.
+	// MaxBackups is the maximum number of old log files to retain. Default is not to remove old log files.
 	MaxBackups int
 
 	// SeparateLevel will write logs to separate files based on the log level.
