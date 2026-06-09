@@ -16,6 +16,12 @@ func NewConsoleEncoder(cfg zapcore.EncoderConfig, level zap.AtomicLevel) zapcore
 	return zapcore.NewCore(consoleEncoder, stdout, level)
 }
 
+func NewJSONStdoutEncoder(cfg zapcore.EncoderConfig, level zap.AtomicLevel) zapcore.Core {
+	jsonEncoder := zapcore.NewJSONEncoder(cfg)
+	stdout := zapcore.AddSync(os.Stdout)
+	return zapcore.NewCore(jsonEncoder, stdout, level)
+}
+
 func NewFileEncoder(cfg zapcore.EncoderConfig, level zap.AtomicLevel, fileConfig fileConfig) zapcore.Core {
 	fileEncoder := zapcore.NewJSONEncoder(cfg)
 	file := zapcore.AddSync(&lumberjack.Logger{

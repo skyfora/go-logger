@@ -20,6 +20,16 @@ type Logger struct {
 	// WithStdout will write logs to stdout.
 	WithStdout bool
 
+	// ConsoleStdout uses human-readable console output instead of JSON on stdout.
+	// Defaults to false (JSON stdout).
+	ConsoleStdout bool
+
+	// ServiceName is added to every log line as a "service" field when non-empty.
+	ServiceName string
+
+	// Environment is added to every log line as an "env" field when non-empty.
+	Environment string
+
 	// MaxSize is the maximum size in megabytes of the log file before it gets
 	// rotated. It defaults to 100 megabytes.
 	MaxSize int
@@ -50,7 +60,11 @@ func Init(l Logger) {
 	cores := []zapcore.Core{}
 
 	if l.WithStdout {
-		cores = append(cores, NewConsoleEncoder(encoderConfig, level))
+		if l.ConsoleStdout {
+			cores = append(cores, NewConsoleEncoder(encoderConfig, level))
+		} else {
+			cores = append(cores, NewJSONStdoutEncoder(encoderConfig, level))
+		}
 	}
 
 	if l.FilePath != "" {
@@ -72,20 +86,46 @@ func Init(l Logger) {
 	}
 
 	core := zapcore.NewTee(cores...)
-	logger = &Logger{
-		Debug:      l.Debug,
-		FilePath:   l.FilePath,
-		WithStdout: l.WithStdout,
-		MaxSize:    l.MaxSize,
-		MaxAge:     l.MaxAge,
-		MaxBackups: l.MaxBackups,
-		zapLog: zap.New(
-			core,
-			zap.AddCaller(),
-			zap.AddCallerSkip(1),
-			zap.AddStacktrace(zap.ErrorLevel),
-		),
+	zapLog := zap.New(
+		core,
+		zap.AddCaller(),
+		zap.AddCallerSkip(1),
+		zap.AddStacktrace(zap.ErrorLevel),
+	)
+
+	fields := make([]zap.Field, 0, 2)
+	if l.ServiceName != "" {
+		fields = append(fields, zap.String("service", l.ServiceName))
 	}
+	if l.Environment != "" {
+		fields = append(fields, zap.String("env", l.Environment))
+	}
+	if len(fields) > 0 {
+		zapLog = zapLog.With(fields...)
+	}
+
+	logger = &Logger{
+		Debug:         l.Debug,
+		FilePath:      l.FilePath,
+		WithStdout:    l.WithStdout,
+		ConsoleStdout: l.ConsoleStdout,
+		ServiceName:   l.ServiceName,
+		Environment:   l.Environment,
+		MaxSize:       l.MaxSize,
+		MaxAge:        l.MaxAge,
+		MaxBackups:    l.MaxBackups,
+		zapLog:        zapLog,
+	}
+}
+
+// InitService initializes JSON stdout logging with standard service identity fields.
+func InitService(serviceName, environment string, debug bool) {
+	Init(Logger{
+		Debug:       debug,
+		WithStdout:  true,
+		ServiceName: serviceName,
+		Environment: environment,
+	})
 }
 
 func InitEmpty() {
